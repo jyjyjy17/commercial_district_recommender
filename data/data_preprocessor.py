@@ -7,9 +7,9 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # CSV 파일 경로 설정
 RESIDENT = os.path.join(BASE_DIR, "./서울시 상권분석서비스(상주인구-상권).csv")
 FOOT_TRAFFIC = os.path.join(BASE_DIR, "./서울시 상권분석서비스(길단위인구-상권).csv")
-SALES = os.path.join(BASE_DIR, "./서울시 상권분석서비스(추정매출-상권).csv")
+SALES = os.path.join(BASE_DIR, "./서울시_상권분석서비스(추정매출-상권)_2022년.csv")
 CHANGE_INDEX = os.path.join(BASE_DIR,"./서울시 상권분석서비스(상권변화지표-상권).csv")
-OUTPUT_PATH = os.path.join(BASE_DIR, "./merged_data_2024_1.csv")
+OUTPUT_PATH = os.path.join(BASE_DIR, "./merged_data_2022.csv")
 
 
 def preprocess_data():
@@ -18,7 +18,7 @@ def preprocess_data():
     sales_data = load_data(SALES)
     change_index_data = load_data(CHANGE_INDEX)
     # 기준년분기 코드와 상권 구분 코드 필터링 조건
-    target_quarters = [20241]
+    target_quarters = [20221,20222,20223,20224]
     target_business_code = 'A'
     target_service_codes = ['CS100001', 'CS100008', 'CS100009', 'CS100003', 'CS100004',
                             'CS100005', 'CS100006', 'CS100007', 'CS100010']
@@ -83,6 +83,18 @@ def preprocess_data():
     filtered_sales_data = filtered_sales_data.groupby(['기준_년분기_코드', '상권_구분_코드', '상권_코드', '상권_코드_명']).sum().reset_index()
     #MERGE
     merged_data = merge_data(filtered_resident_data,filtered_foot_trafic,filtered_sales_data,filtered_change_index)
+    # 연령대별 상주인구와 유동인구를 합쳐서 새로운 컬럼 생성
+    age_groups = ['10', '20', '30', '40', '50', '60_이상']
+    for age in age_groups:
+        merged_data[f'연령대_{age}_총_인구_수'] = merged_data[f'연령대_{age}_상주인구_수'] + merged_data[f'연령대_{age}_유동인구_수']
+
+    # 기존 연령대별 상주인구와 유동인구 컬럼 삭제
+    # columns_to_drop = []
+    # for age in age_groups:
+    #     columns_to_drop.append(f'연령대_{age}_상주인구_수')
+    #     columns_to_drop.append(f'연령대_{age}_유동인구_수')
+    # merged_data = merged_data.drop(columns=columns_to_drop)
+
     #중복 제거, 정렬
     merged_data = merged_data.drop_duplicates()
     merged_data = merged_data.sort_values(by=['기준_년분기_코드', '상권_코드'])

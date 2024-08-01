@@ -1,0 +1,25 @@
+# Python 관련
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv/
+env/
+venv/
+ENV/
+
+# PyCharm 설정 파일
+.idea/
+
+# 빌드 아티팩트
+build/
+dist/
+
+# 환경 설정 파일
+*.env
+
+# 로그 파일
+*.log
+
+# 데이터베이스 파일
+*.sqlite3
